@@ -14,30 +14,25 @@ The solution set must not contain duplicate combinations.
 
 import Foundation
 
-func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+class Solution {
 
-    let numbers = candidates.sorted(by: >)
-    let templates = matrix(for: numbers.map({ target / $0 }))
-    var variants = Array<[Int]>()
-    for row in templates {
-        var variant = [Int]()
-        for index in 0..<row.count {
-            variant.append(contentsOf: Array(repeating: numbers[index], count: row[index]))
-        }
-        if variant.reduce(0, { $0 + $1 }) == target { variants.append(variant) }
+    func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+        var combination = [Int]()
+        var results = [[Int]]()
+        findCombinationsToTarget(results: &results, combination: &combination, candidates: candidates.sorted(), target: target, index: 0)
+
+        return results
     }
-    return variants
-}
 
-func matrix(for array: [Int]) -> [[Int]] {
-    guard let first = array.first else { return [] }
-    let croppedArray = Array(array.dropFirst())
-    if croppedArray.isEmpty {
-        return (0...first).map { [$0] }
-    } else {
-        return matrix(for: croppedArray)
-                .map {  combination in (0...first).map { [$0] + combination }  }
-                .reduce(into: Array<[Int]>()) { $0.append(contentsOf: $1) }
+    func findCombinationsToTarget(results: inout [[Int]], combination: inout [Int], candidates: [Int], target: Int, index: Int) {
+        if target == 0 { results.append(combination); return }
+
+        for i in index..<candidates.count {
+            if candidates[i] > target { continue }
+            combination.append(candidates[i])
+            findCombinationsToTarget(results: &results, combination: &combination, candidates: candidates, target: target - candidates[i], index: i)
+            combination.removeLast()
+        }
     }
 }
 
